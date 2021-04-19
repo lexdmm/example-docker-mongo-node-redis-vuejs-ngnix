@@ -1,0 +1,90 @@
+version: '3'
+networks: 
+  nt-db:
+  nt-app:
+  nt-web: 
+  nt-queue:
+  nt-ngx:
+
+services: 
+  db: 
+    container_name: database-mongodb
+    image: mongo:4.0.10
+    ports:
+      - 27017:27017
+    networks: 
+      - nt-db
+
+  backend:
+    container_name: backend-node
+    image: node:10.16.0
+    volumes: 
+      - ./backend:/backend 
+    working_dir: /backend
+    environment:
+      WAIT_HOSTS: db
+    command: sh -c "cd /backend && npm i --save && npm start"
+    networks: 
+      - nt-app
+      - nt-db
+    depends_on: 
+      - db
+
+  queue:
+    container_name: queue-redis
+    image: redis:5.0.5
+    ports:
+      - 6379:6379
+    networks: 
+      - nt-queue
+      - nt-app
+
+  worker:
+    image: node:10.16.0
+    volumes: 
+      - ./backend:/backend
+    working_dir: /backend
+    command: bash -c "cd /backend/worker && node email.worker.js" 
+    networks:
+      - nt-db
+      - nt-app
+      - nt-queue   
+    depends_on: 
+      - db
+      - backend
+      - queue
+
+  frontend:
+    container_name: frontend-vuejs
+    image: node:10.16.0
+    volumes:
+      - ./frontend:/frontend
+    working_dir: /frontend
+    command: bash -c "cd /frontend && npm i --save && npm run build"
+    ports:
+      - 82:8080
+    networks: 
+      - nt-web
+      - nt-queue
+    depends_on: 
+      - backend
+      - queue  
+      - worker
+
+  nginx:
+    container_name: nginx
+    image: nginx:1.16.0
+    volumes:
+      # Site
+      - ./frontend/dist:/usr/share/nginx/html/
+      # Configuração do Proxy reverso
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 81:80
+    networks: 
+      - nt-ngx    
+      - nt-app
+      - nt-web
+    depends_on:
+      - backend
+      - frontend
