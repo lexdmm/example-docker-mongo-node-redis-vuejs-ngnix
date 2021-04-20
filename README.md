@@ -1,7 +1,7 @@
 #Simple Project Node, MongoDb, Redis, Semantic-Ui-Vue and Nginx 
 **Author: Menescal, Daniel M.**
 
-Um exemplo simples de como executar um projeto com backend desenvolvido em Node, com Mongodb, um job escalado em uma fila com o Redis e um frontend VueJs, expondo em um proxy reverso com Nginx. Tudo isso sem a necessidade dessas ferramentas instaladas em sua máquina que não seja o Docker.
+Um exemplo simples de como executar um projeto com backend desenvolvido em Node, com Mongodb, um job escalado em uma fila com o Redis e um frontend VueJs, expondo em um proxy reverso com Nginx. Tudo isso sem a necessidade dessas ferramentas instaladas em sua máquina, apenas no Docker.
 
 ##Quick Start, Siga as etapas.
 
